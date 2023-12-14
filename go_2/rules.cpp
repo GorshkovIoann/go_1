@@ -2,21 +2,6 @@
 
 using namespace std;
 
-// vector<vector<bool>> move(vector<vector<int>> st, bool black, pair<int, int> last)
-//{
-//     vector<vector<bool>> res(st.size(), vector<bool>(st[0].size(), true));
-//
-//     if(last.first != -1) res[last.first][last.second] = false;
-//
-//     for(int i = 0; i < st.size(); i++)
-//     for(int j = 0; j < st[i].size(); j++)
-//     {
-//         if (st[i][j] != 0) res[i][j] = false;
-//     }
-//
-//     return res;
-// }
-
 bool Rules::ko(Cell &c2)
 {
   if (black_turn && first_white_turn)
@@ -45,71 +30,45 @@ bool Rules::ko(Cell &c2)
   return false;
 }
 
-// int Rules::get_pass() { return pass.get_id(); }
-
 void Rules::check_rules(Cell &c2)
 {
-  // std::cout << c2.get_id();
 
   int a = c2.get_y();
   int b = c2.get_x();
   std::cout << a << b;
 
-  /*for (int i = 1; i <= 9; ++i)
-   {
-     for (int c = 1; c <= 9; ++c)
-     {
-       // std::cout << at(i, c).get_id();
-
-       if (at(i, c).get_id() == c2.get_id())
-       {
-         a = i;
-         b = c;
-         std::cout << 1;
-       }
-     }
-   }
-   */
   if (black_turn)
   { // был ход белых
     check_around_black(a, b);
-    nums.clear();
+    cells_to_eat.clear();
     to_remove_cells.clear();
     if (death_check(a, b, true))
     {
       c2.detach_figure();
     }
-    nums.clear();
+    cells_to_eat.clear();
     to_remove_cells.clear();
   }
   else if (!black_turn)
   { // был ход черных
     check_around_white(a, b);
-    nums.clear();
+    cells_to_eat.clear();
     to_remove_cells.clear();
     if (death_check(a, b, false))
     {
 
       c2.detach_figure();
     }
-    nums.clear();
+    cells_to_eat.clear();
     to_remove_cells.clear();
   }
-  // recount();
-  /*std::ostringstream oss;
-  oss << "White score = " << white_count;
-  w_score.set_label(oss.str());
-  std::ostringstream oss2;
-  oss2 << "Black score = " << black_count;
-  b_score.set_label(oss2.str());
-  */
 }
 
 bool Rules::check(int a, int b)
 {
   bool del = true;
   std::cout << "black";
-  nums.push_back(a * 10 + b);
+  cells_to_eat.push_back(a * 10 + b);
 
   if (a - 1 > 0 && !at(a - 1, b).has_figure())
     return false;
@@ -122,7 +81,7 @@ bool Rules::check(int a, int b)
 
   if ((a - 1 > 0 &&
        (at(a - 1, b).has_white_figure() == at(a, b).has_white_figure())) &&
-      std::count(nums.begin(), nums.end(), (a - 1) * 10 + b) == 0)
+      std::count(cells_to_eat.begin(), cells_to_eat.end(), (a - 1) * 10 + b) == 0)
   {
     del = check(a - 1, b) && del;
     std::cout << "utop" << a << b << std::endl;
@@ -130,7 +89,7 @@ bool Rules::check(int a, int b)
 
   if ((a + 1 <= 9 &&
        (at(a + 1, b).has_white_figure() == at(a, b).has_white_figure())) &&
-      std::count(nums.begin(), nums.end(), (a + 1) * 10 + b) == 0)
+      std::count(cells_to_eat.begin(), cells_to_eat.end(), (a + 1) * 10 + b) == 0)
   {
 
     del = del && check(a + 1, b);
@@ -139,7 +98,7 @@ bool Rules::check(int a, int b)
 
   if ((b + 1 <= 9 &&
        (at(a, b + 1).has_black_figure() != at(a, b).has_white_figure())) &&
-      std::count(nums.begin(), nums.end(), (a) * 10 + b + 1) == 0)
+      std::count(cells_to_eat.begin(), cells_to_eat.end(), (a) * 10 + b + 1) == 0)
   {
 
     del = del && check(a, b + 1);
@@ -148,7 +107,7 @@ bool Rules::check(int a, int b)
 
   if ((b - 1 > 0 &&
        (at(a, b - 1).has_black_figure() != at(a, b).has_white_figure())) &&
-      std::count(nums.begin(), nums.end(), (a) * 10 + b - 1) == 0)
+      std::count(cells_to_eat.begin(), cells_to_eat.end(), (a) * 10 + b - 1) == 0)
   {
 
     del = del && check(a, b - 1);
@@ -174,7 +133,7 @@ void Rules::check_around_black(int a, int b)
         ++white_count;
         to_remove_cells[i].detach_figure();
       }
-    nums.clear();
+    cells_to_eat.clear();
     to_remove_cells.clear();
   }
   if (a + 1 < 10 && at(a + 1, b).has_black_figure())
@@ -185,7 +144,7 @@ void Rules::check_around_black(int a, int b)
         ++white_count;
         to_remove_cells[i].detach_figure();
       }
-    nums.clear();
+    cells_to_eat.clear();
     to_remove_cells.clear();
   }
   if (b + 1 < 10 && at(a, b + 1).has_black_figure())
@@ -196,7 +155,7 @@ void Rules::check_around_black(int a, int b)
         ++white_count;
         to_remove_cells[i].detach_figure();
       }
-    nums.clear();
+    cells_to_eat.clear();
     to_remove_cells.clear();
   }
   if (b - 1 > 0 && at(a, b - 1).has_black_figure())
@@ -207,14 +166,13 @@ void Rules::check_around_black(int a, int b)
         ++white_count;
         to_remove_cells[i].detach_figure();
       }
-    nums.clear();
+    cells_to_eat.clear();
     to_remove_cells.clear();
   }
 }
 
 bool Rules::death_check(int a, int b, bool black)
 {
-  // 2-проверкасуицида
   if (black)
     if (check(a, b))
     {
@@ -242,7 +200,7 @@ void Rules::check_around_white(int a, int b)
         ++black_count;
         to_remove_cells[i].detach_figure();
       }
-    nums.clear();
+    cells_to_eat.clear();
     to_remove_cells.clear();
   }
   if (a + 1 < 10 && at(a + 1, b).has_white_figure())
@@ -253,7 +211,7 @@ void Rules::check_around_white(int a, int b)
         ++black_count;
         to_remove_cells[i].detach_figure();
       }
-    nums.clear();
+    cells_to_eat.clear();
     to_remove_cells.clear();
   }
   if (b + 1 < 10 && at(a, b + 1).has_white_figure())
@@ -264,7 +222,7 @@ void Rules::check_around_white(int a, int b)
         ++black_count;
         to_remove_cells[i].detach_figure();
       }
-    nums.clear();
+    cells_to_eat.clear();
     to_remove_cells.clear();
   }
 
@@ -276,16 +234,16 @@ void Rules::check_around_white(int a, int b)
         ++black_count;
         to_remove_cells[i].detach_figure();
       }
-    nums.clear();
+    cells_to_eat.clear();
     to_remove_cells.clear();
   }
 }
 
 void Rules::check_num_w(int i, int j, int group_num)
 {
-  if (copy2[i][j] == 0)
+  if (copyw[i][j] == 0)
   {
-    copy2[i][j] = group_num;
+    copyw[i][j] = group_num;
     if (i - 1 >= 0)
       check_num_w(i - 1, j, group_num);
     if (i + 1 < 9)
@@ -299,9 +257,9 @@ void Rules::check_num_w(int i, int j, int group_num)
 
 void Rules::check_num_bl(int i, int j, int group_num)
 {
-  if (copy1[i][j] == 0)
+  if (copybl[i][j] == 0)
   {
-    copy1[i][j] = group_num;
+    copybl[i][j] = group_num;
     if (i - 1 >= 0)
       check_num_bl(i - 1, j, group_num);
     if (i + 1 < 9)
@@ -316,304 +274,182 @@ void Rules::check_num_bl(int i, int j, int group_num)
 void Rules::check_w_line(int i, int j, int group_num)
 {
   from_null_to_line.push_back(i * 10 + j);
-  copy2[i][j] = 3;
+  copyw[i][j] = checked_w_fig;
   if (i - 1 >= 0)
   {
-    if (copy2[i - 1][j] == 1)
-    {
+    if (copyw[i - 1][j] == w_fig)
       check_w_line(i - 1, j, group_num);
-    }
     else if (std::count(territory.begin(), territory.end(),
-                        copy2[i - 1][j]) == 0)
-    {
-      territory.push_back(copy2[i - 1][j]);
-    }
+                        copyw[i - 1][j]) == 0)
+      territory.push_back(copyw[i - 1][j]);
   }
 
   if (i + 1 < 9)
   {
-    if (copy2[i + 1][j] == 1)
-    {
+    if (copyw[i + 1][j] == w_fig)
       check_w_line(i + 1, j, group_num);
-    }
     else if (std::count(territory.begin(), territory.end(),
-                        copy2[i + 1][j]) == 0)
-    {
-      territory.push_back(copy2[i + 1][j]);
-    }
+                        copyw[i + 1][j]) == 0)
+      territory.push_back(copyw[i + 1][j]);
   }
 
   if (j - 1 >= 0)
   {
-    if (copy2[i][j - 1] == 1)
-    {
+    if (copyw[i][j - 1] == w_fig)
       check_w_line(i, j - 1, group_num);
-    }
     else if (std::count(territory.begin(), territory.end(),
-                        copy2[i][j - 1]) == 0)
-    {
-      territory.push_back(copy2[i][j - 1]);
-    }
+                        copyw[i][j - 1]) == 0)
+      territory.push_back(copyw[i][j - 1]);
   }
 
   if (j + 1 < 9)
   {
-    if (copy2[i][j + 1] == 1)
-    {
+    if (copyw[i][j + 1] == w_fig)
       check_w_line(i, j + 1, group_num);
-    }
     else if (std::count(territory.begin(), territory.end(),
-                        copy2[i][j + 1]) == 0)
-    {
-      territory.push_back(copy2[i][j + 1]);
-    }
+                        copyw[i][j + 1]) == 0)
+      territory.push_back(copyw[i][j + 1]);
   }
   if (i - 1 >= 0 && j - 1 >= 0)
   {
-    if (copy2[i - 1][j - 1] == 1)
-    {
+    if (copyw[i - 1][j - 1] == w_fig)
       check_w_line(i - 1, j - 1, group_num);
-    }
     else if (std::count(territory.begin(), territory.end(),
-                        copy2[i - 1][j - 1]) == 0)
-    {
-      territory.push_back(copy2[i - 1][j - 1]);
-    }
+                        copyw[i - 1][j - 1]) == 0)
+      territory.push_back(copyw[i - 1][j - 1]);
   }
 
   if (i + 1 < 9 && j + 1 < 9)
   {
-    if (copy2[i + 1][j + 1] == 1)
-    {
+    if (copyw[i + 1][j + 1] == w_fig)
       check_w_line(i + 1, j + 1, group_num);
-    }
     else if (std::count(territory.begin(), territory.end(),
-                        copy2[i + 1][j + 1]) == 0)
-    {
-      territory.push_back(copy2[i + 1][j + 1]);
-    }
+                        copyw[i + 1][j + 1]) == 0)
+      territory.push_back(copyw[i + 1][j + 1]);
   }
   if (j - 1 >= 0 && i + 1 < 9)
   {
-    if (copy2[i + 1][j - 1] == 1)
-    {
+    if (copyw[i + 1][j - 1] == w_fig)
       check_w_line(i + 1, j - 1, group_num);
-    }
     else if (std::count(territory.begin(), territory.end(),
-                        copy2[i + 1][j - 1]) == 0)
-    {
-      territory.push_back(copy2[i + 1][j - 1]);
-    }
+                        copyw[i + 1][j - 1]) == 0)
+      territory.push_back(copyw[i + 1][j - 1]);
   }
   if (j + 1 < 9 && i - 1 >= 0)
   {
-    if (copy2[i - 1][j + 1] == 1)
-    {
+    if (copyw[i - 1][j + 1] == w_fig)
       check_w_line(i - 1, j + 1, group_num);
-    }
     else if (std::count(territory.begin(), territory.end(),
-                        copy2[i - 1][j + 1]) == 0)
-    {
-      territory.push_back(copy2[i - 1][j + 1]);
-    }
+                        copyw[i - 1][j + 1]) == 0)
+      territory.push_back(copyw[i - 1][j + 1]);
   }
 }
 
 void Rules::check_bl_line(int i, int j, int group_num)
 {
   from_null_to_line.push_back(i * 10 + j);
-  copy1[i][j] = 4;
+  copybl[i][j] = checked_bl_fig;
   if (i - 1 >= 0)
   {
-    if (copy1[i - 1][j] == 2)
-    {
+    if (copybl[i - 1][j] == bl_fig)
       check_bl_line(i - 1, j, group_num);
-    }
     else if (std::count(territory.begin(), territory.end(),
-                        copy1[i - 1][j]) == 0)
-    {
-      territory.push_back(copy1[i - 1][j]);
-    }
+                        copybl[i - 1][j]) == 0)
+      territory.push_back(copybl[i - 1][j]);
   }
-
   if (i + 1 < 9)
   {
-    if (copy1[i + 1][j] == 2)
-    {
+    if (copybl[i + 1][j] == bl_fig)
       check_bl_line(i + 1, j, group_num);
-    }
     else if (std::count(territory.begin(), territory.end(),
-                        copy1[i + 1][j]) == 0)
-    {
-      territory.push_back(copy1[i + 1][j]);
-    }
+                        copybl[i + 1][j]) == 0)
+      territory.push_back(copybl[i + 1][j]);
   }
-
   if (j - 1 >= 0)
   {
-    if (copy1[i][j - 1] == 2)
-    {
+    if (copybl[i][j - 1] == bl_fig)
       check_bl_line(i, j - 1, group_num);
-    }
     else if (std::count(territory.begin(), territory.end(),
-                        copy1[i][j - 1]) == 0)
-    {
-      territory.push_back(copy1[i][j - 1]);
-    }
+                        copybl[i][j - 1]) == 0)
+      territory.push_back(copybl[i][j - 1]);
   }
 
   if (j + 1 < 9)
   {
-    if (copy1[i][j + 1] == 2)
-    {
+    if (copybl[i][j + 1] == bl_fig)
       check_bl_line(i, j + 1, group_num);
-    }
     else if (std::count(territory.begin(), territory.end(),
-                        copy1[i][j + 1]) == 0)
-    {
-      territory.push_back(copy1[i][j + 1]);
-    }
+                        copybl[i][j + 1]) == 0)
+      territory.push_back(copybl[i][j + 1]);
   }
   if (i - 1 >= 0 && j - 1 >= 0)
   {
-    if (copy1[i - 1][j - 1] == 2)
-    {
+    if (copybl[i - 1][j - 1] == bl_fig)
       check_bl_line(i - 1, j - 1, group_num);
-    }
     else if (std::count(territory.begin(), territory.end(),
-                        copy1[i - 1][j - 1]) == 0)
-    {
-      territory.push_back(copy1[i - 1][j - 1]);
-    }
+                        copybl[i - 1][j - 1]) == 0)
+      territory.push_back(copybl[i - 1][j - 1]);
   }
 
   if (i + 1 < 9 && j + 1 < 9)
   {
-    if (copy1[i + 1][j + 1] == 2)
-    {
+    if (copybl[i + 1][j + 1] == bl_fig)
       check_bl_line(i + 1, j + 1, group_num);
-    }
     else if (std::count(territory.begin(), territory.end(),
-                        copy1[i + 1][j + 1]) == 0)
-    {
-      territory.push_back(copy1[i + 1][j + 1]);
-    }
+                        copybl[i + 1][j + 1]) == 0)
+      territory.push_back(copybl[i + 1][j + 1]);
   }
   if (j - 1 >= 0 && i + 1 < 9)
   {
-    if (copy1[i + 1][j - 1] == 2)
-    {
+    if (copybl[i + 1][j - 1] == bl_fig)
       check_bl_line(i + 1, j - 1, group_num);
-    }
     else if (std::count(territory.begin(), territory.end(),
-                        copy1[i + 1][j - 1]) == 0)
-    {
-      territory.push_back(copy1[i + 1][j - 1]);
-    }
+                        copybl[i + 1][j - 1]) == 0)
+      territory.push_back(copybl[i + 1][j - 1]);
   }
   if (j + 1 < 9 && i - 1 >= 0)
   {
-    if (copy1[i - 1][j + 1] == 2)
-    {
+    if (copybl[i - 1][j + 1] == bl_fig)
       check_bl_line(i - 1, j + 1, group_num);
-    }
     else if (std::count(territory.begin(), territory.end(),
-                        copy1[i - 1][j + 1]) == 0)
-    {
-      territory.push_back(copy1[i - 1][j + 1]);
-    }
+                        copybl[i - 1][j + 1]) == 0)
+      territory.push_back(copybl[i - 1][j + 1]);
   }
 }
 
 void Rules::recount()
 {
 
-  int group_num = 5;
-  int bl_num = 100;
-  int w_num = 200;
-  std::cout << "recount";
-  int num_cells[9][9];
   for (int x = 0; x < cells.size(); ++x)
   {
     if (cells[x].get_x() != -1)
     {
       if (cells[x].has_black_figure())
       {
-        num_cells[cells[x].get_y() - 1][cells[x].get_x() - 1] = 2;
+        num_cells[cells[x].get_y() - 1][cells[x].get_x() - 1] = bl_fig;
       }
       if (cells[x].has_white_figure())
       {
-        num_cells[cells[x].get_y() - 1][cells[x].get_x() - 1] = 1;
+        num_cells[cells[x].get_y() - 1][cells[x].get_x() - 1] = w_fig;
       }
       if (!cells[x].has_figure())
-        num_cells[cells[x].get_y() - 1][cells[x].get_x() - 1] = 0;
+        num_cells[cells[x].get_y() - 1][cells[x].get_x() - 1] = no_fig;
     }
   }
-  // forblack
-
-  for (int i = 0; i < 9; ++i)
-  {
-    for (int j = 0; j < 9; ++j)
-    {
-      // std::cout << num_cells[i][j] << std::endl;
-      copy1[i][j] = num_cells[i][j];
-      if (copy1[i][j] == 1)
-        copy1[i][j] = 0;
-    }
-  }
-
-  for (int i = 0; i < 9; ++i)
-  {
-    for (int j = 0; j < 9; ++j)
-    {
-      check_num_bl(i, j, group_num);
-      group_num++;
-    }
-  }
-  /*for (int i = 0; i < 9; ++i)
-  {
-    for (int j = 0; j < 9; ++j)
-    {
-      std::cout << copy1[i][j] << std::endl;
-    }
-  }*/
-  for (int i = 0; i < 9; ++i)
-  {
-    for (int j = 0; j < 9; ++j)
-    {
-      if (copy1[i][j] == 2)
-      {
-        check_bl_line(i, j, bl_num);
-        if (territory.size() > 2 &&
-            std::count(territory.begin(), territory.end(), 2) == 0)
-        {
-          for (int x : from_null_to_line)
-          {
-            copy1[x / 10][x % 10] = bl_num;
-          }
-          for (int x : territory)
-          {
-            std::cout << x << std::endl;
-            if (x != 4)
-              bl_territory.push_back(x);
-          }
-        }
-        from_null_to_line.clear();
-        territory.clear();
-        bl_num++;
-      }
-    }
-  }
-  // for white
-
+  recount_black();
+  recount_white();
+  recount_territory();
+}
+void Rules::recount_white()
+{
   group_num = 5;
   for (int i = 0; i < 9; ++i)
   {
     for (int j = 0; j < 9; ++j)
     {
-      copy2[i][j] = num_cells[i][j];
-      if (copy2[i][j] == 2)
-        copy2[i][j] = 0;
+      copyw[i][j] = num_cells[i][j];
+      if (copyw[i][j] == bl_fig)
+        copyw[i][j] = no_fig;
     }
   }
 
@@ -630,326 +466,219 @@ void Rules::recount()
   {
     for (int j = 0; j < 9; ++j)
     {
-      if (copy2[i][j] == 1)
+      if (copyw[i][j] == w_fig)
       {
-        check_w_line(i, j, w_num);
+        check_w_line(i, j, w_line_num);
         if (territory.size() > 2 &&
-            std::count(territory.begin(), territory.end(), 1) == 0)
+            std::count(territory.begin(), territory.end(), w_fig) == 0)
         {
           for (int x : from_null_to_line)
           {
-            copy2[x / 10][x % 10] = w_num;
+            copyw[x / 10][x % 10] = w_line_num;
           }
           for (int x : territory)
           {
             std::cout << x << std::endl;
-            if (x != 3)
+            if (x != checked_w_fig)
               w_territory.push_back(x);
           }
         }
         from_null_to_line.clear();
         territory.clear();
-        w_num++;
-      }
-    }
-  }
-  // общая проверка
-  std::cout << std::endl;
-  for (int i = 0; i < 9; ++i)
-  {
-    for (int j = 0; j < 9; ++j)
-    {
-      std::cout << copy1[i][j] << std::endl;
-    }
-  }
-  std::cout << std::endl;
-  for (int i = 0; i < 9; ++i)
-  {
-    for (int j = 0; j < 9; ++j)
-    {
-      std::cout << copy2[i][j] << std::endl;
-    }
-  }
-  for (int i = 0; i < 9; ++i)
-  {
-    for (int j = 0; j < 9; ++j)
-    {
-      if (copy2[i][j] > 99)
-      {
-        int t = copy1[i][j];
-        for (int i = 0; i < 9; ++i)
-        {
-          for (int j = 0; j < 9; ++j)
-          {
-            if (copy1[i][j] == t)
-              copy1[i][j] = 99;
-          }
-        }
-      }
-      if (copy1[i][j] > 99)
-      {
-        int t = copy2[i][j];
-        for (int i = 0; i < 9; ++i)
-        {
-          for (int j = 0; j < 9; ++j)
-          {
-            if (copy2[i][j] == t)
-              copy2[i][j] = 99;
-          }
-        }
-      }
-    }
-  }
-  for (int i = 0; i < 9; ++i)
-  {
-    for (int j = 0; j < 9; ++j)
-    {
-      if (copy1[i][j] > 99 || copy2[i][j] > 99)
-      {
-      }
-      else if (copy1[i][j] == 4)
-      {
-        check_along_black(i, j);
-      }
-      else if (copy2[i][j] == 3)
-      {
-        check_along_white(i, j);
-      }
-      else if (copy2[i][j] != 1 && copy1[i][j] != 2)
-      {
-        if (std::count(w_territory.begin(), w_territory.end(),
-                       copy2[i][j]) > 0 &&
-            std::count(bl_territory.begin(), bl_territory.end(),
-                       copy1[i][j]) == 0)
-        {
-          white_count++;
-        }
-        if (std::count(w_territory.begin(), w_territory.end(),
-                       copy2[i][j]) == 0 &&
-            std::count(bl_territory.begin(), bl_territory.end(),
-                       copy1[i][j]) > 0)
-        {
-          black_count++;
-        }
+        w_line_num++;
       }
     }
   }
 }
+void Rules::recount_black()
+{
+  for (int i = 0; i < 9; ++i)
+  {
+    for (int j = 0; j < 9; ++j)
+    {
+      copybl[i][j] = num_cells[i][j];
+      if (copybl[i][j] == w_fig)
+        copybl[i][j] = no_fig;
+    }
+  }
 
+  for (int i = 0; i < 9; ++i)
+  {
+    for (int j = 0; j < 9; ++j)
+    {
+      check_num_bl(i, j, group_num);
+      group_num++;
+    }
+  }
+  for (int i = 0; i < 9; ++i)
+  {
+    for (int j = 0; j < 9; ++j)
+    {
+      if (copybl[i][j] == bl_fig)
+      {
+        check_bl_line(i, j, bl_line_num);
+        if (territory.size() > 2 &&
+            std::count(territory.begin(), territory.end(), bl_fig) == 0)
+        {
+          for (int x : from_null_to_line)
+          {
+            copybl[x / 10][x % 10] = bl_line_num;
+          }
+          for (int x : territory)
+          {
+            std::cout << x << std::endl;
+            if (x != checked_bl_fig)
+              bl_territory.push_back(x);
+          }
+        }
+        from_null_to_line.clear();
+        territory.clear();
+        bl_line_num++;
+      }
+    }
+  }
+}
+void Rules::recount_territory()
+{
+  for (int i = 0; i < 9; ++i)
+    for (int j = 0; j < 9; ++j)
+    {
+      if (copyw[i][j] >= 100)
+      {
+        int t = copybl[i][j];
+        for (int i = 0; i < 9; ++i)
+          for (int j = 0; j < 9; ++j)
+            if (copybl[i][j] == t)
+              copybl[i][j] = 99;
+      }
+      if (copybl[i][j] >= 100)
+      {
+        int t = copyw[i][j];
+        for (int i = 0; i < 9; ++i)
+          for (int j = 0; j < 9; ++j)
+            if (copyw[i][j] == t)
+              copyw[i][j] = 99;
+      }
+    }
+  for (int i = 0; i < 9; ++i)
+    for (int j = 0; j < 9; ++j)
+    {
+      if (copybl[i][j] >= 100 || copyw[i][j] >= 100)
+        ;
+      else if (copybl[i][j] == checked_bl_fig)
+        check_along_black(i, j);
+      else if (copyw[i][j] == checked_w_fig)
+        check_along_white(i, j);
+      else if (copyw[i][j] != w_fig && copybl[i][j] != bl_fig)
+      {
+        if (std::count(w_territory.begin(), w_territory.end(),
+                       copyw[i][j]) > 0 &&
+            std::count(bl_territory.begin(), bl_territory.end(),
+                       copybl[i][j]) == 0)
+          white_count++;
+        if (std::count(w_territory.begin(), w_territory.end(),
+                       copyw[i][j]) == 0 &&
+            std::count(bl_territory.begin(), bl_territory.end(),
+                       copybl[i][j]) > 0)
+          black_count++;
+      }
+    }
+}
 bool Rules::check_along_black(int i, int j)
 {
-  std::cout << "strt";
-  copy1[i][j] = 2;
+  copybl[i][j] = bl_fig;
   bool flg = false;
   if (i - 1 >= 0)
   {
-    if (copy1[i - 1][j] == 4)
-    {
-      if (check_along_black(i - 1, j))
-      {
-        flg = true;
-      }
-    }
-    std::cout << copy1[i - 1][j] << std::endl;
-    if (copy1[i - 1][j] >= 5 && copy1[i - 1][j] < 100)
-    {
-      std::cout << "!" << std::endl;
-      if (std::count(w_territory.begin(), w_territory.end(),
-                     copy2[i - 1][j]) > 0 &&
-          std::count(bl_territory.begin(), bl_territory.end(),
-                     copy1[i - 1][j]) == 0)
-      {
-        flg = true;
-      }
-    }
+    if (copybl[i - 1][j] == checked_bl_fig && check_along_black(i - 1, j))
+      flg = true;
+    if (copybl[i - 1][j] > checked_bl_fig && copybl[i - 1][j] < 100 && std::count(w_territory.begin(), w_territory.end(), copyw[i - 1][j]) > 0 &&
+        std::count(bl_territory.begin(), bl_territory.end(),
+                   copybl[i - 1][j]) == 0)
+      flg = true;
   }
 
   if (i + 1 <= 9)
   {
-    if (copy1[i + 1][j] == 4)
-    {
-      if (check_along_black(i + 1, j))
-      {
-        flg = true;
-      }
-    }
-    std::cout << copy1[i + 1][j] << std::endl;
-    if (copy1[i + 1][j] >= 5 && copy1[i + 1][j] < 100)
-    {
-      std::cout << "!" << std::endl;
-      if (std::count(w_territory.begin(), w_territory.end(),
-                     copy2[i + 1][j]) > 0 &&
-          std::count(bl_territory.begin(), bl_territory.end(),
-                     copy1[i + 1][j]) == 0)
-      {
-        flg = true;
-      }
-    }
+    if (copybl[i + 1][j] == checked_bl_fig && check_along_black(i + 1, j))
+      flg = true;
+    if (copybl[i + 1][j] > checked_bl_fig && copybl[i + 1][j] < 100 && std::count(w_territory.begin(), w_territory.end(), copyw[i + 1][j]) > 0 &&
+        std::count(bl_territory.begin(), bl_territory.end(),
+                   copybl[i + 1][j]) == 0)
+      flg = true;
   }
 
   if (j - 1 >= 0)
   {
-    if (copy1[i][j - 1] == 4)
-    {
-      if (check_along_black(i, j - 1))
-      {
-        flg = true;
-      }
-    }
-    if (copy1[i][j - 1] >= 5 && copy1[i][j - 1] < 100)
-    {
-      std::cout << "!" << std::endl;
-      if (std::count(w_territory.begin(), w_territory.end(),
-                     copy2[i][j - 1]) > 0 &&
-          std::count(bl_territory.begin(), bl_territory.end(),
-                     copy1[i][j - 1]) == 0)
-      {
-        flg = true;
-      }
-    }
+    if (copybl[i][j - 1] == checked_bl_fig && check_along_black(i, j - 1))
+      flg = true;
+    if (copybl[i][j - 1] > checked_bl_fig && copybl[i][j - 1] < 100 && std::count(w_territory.begin(), w_territory.end(), copyw[i][j - 1]) > 0 &&
+        std::count(bl_territory.begin(), bl_territory.end(),
+                   copybl[i][j - 1]) == 0)
+      flg = true;
   }
-
   if (j + 1 <= 9)
   {
-    if (copy1[i][j + 1] == 4)
-    {
-      if (check_along_black(i, j + 1))
-      {
-        flg = true;
-      }
-    }
-    if (copy1[i][j + 1] >= 5 && copy1[i][j + 1] < 100)
-    {
-      std::cout << "!" << std::endl;
-      if (std::count(w_territory.begin(), w_territory.end(),
-                     copy2[i][j + 1]) > 0 &&
-          std::count(bl_territory.begin(), bl_territory.end(),
-                     copy1[i][j + 1]) == 0)
-      {
-
-        flg = true;
-      }
-    }
+    if (copybl[i][j + 1] == checked_bl_fig && check_along_black(i, j + 1))
+      flg = true;
+    if (copybl[i][j + 1] > checked_bl_fig && copybl[i][j + 1] < 100 && std::count(w_territory.begin(), w_territory.end(), copyw[i][j + 1]) > 0 &&
+        std::count(bl_territory.begin(), bl_territory.end(),
+                   copybl[i][j + 1]) == 0)
+      flg = true;
   }
   if (flg == true)
-  {
     white_count = white_count + 2;
-  }
   return flg;
 }
 
 bool Rules::check_along_white(int i, int j)
 {
-  copy2[i][j] = 1;
+  copyw[i][j] = w_fig;
   bool flg = false;
   if (i - 1 >= 0)
   {
-    if (copy2[i - 1][j] == 3)
-    {
-      if (check_along_white(i - 1, j))
-      {
-
-        flg = true;
-      }
-    }
-    if (copy2[i - 1][j] >= 5 && copy2[i - 1][j] < 100)
-    {
-      if (std::count(w_territory.begin(), w_territory.end(),
-                     copy2[i - 1][j]) == 0 &&
-          std::count(bl_territory.begin(), bl_territory.end(),
-                     copy1[i - 1][j]) > 0)
-      {
-
-        flg = true;
-      }
-    }
+    if (copyw[i - 1][j] == checked_w_fig && check_along_white(i - 1, j))
+      flg = true;
+    if (copyw[i - 1][j] > checked_bl_fig && copyw[i - 1][j] < 100 && std::count(w_territory.begin(), w_territory.end(), copyw[i - 1][j]) == 0 &&
+        std::count(bl_territory.begin(), bl_territory.end(),
+                   copybl[i - 1][j]) > 0)
+      flg = true;
   }
 
   if (i + 1 <= 9)
   {
-    if (copy2[i + 1][j] == 3)
-    {
-      if (check_along_white(i + 1, j))
-      {
-
-        flg = true;
-      }
-    }
-    if (copy2[i + 1][j] >= 5 && copy2[i + 1][j] < 100)
-    {
-      if (std::count(w_territory.begin(), w_territory.end(),
-                     copy2[i + 1][j]) == 0 &&
-          std::count(bl_territory.begin(), bl_territory.end(),
-                     copy1[i + 1][j]) > 0)
-      {
-
-        flg = true;
-      }
-    }
+    if (copyw[i + 1][j] == checked_w_fig && check_along_white(i + 1, j))
+      flg = true;
+    if (copyw[i + 1][j] > checked_bl_fig && copyw[i + 1][j] < 100 && std::count(w_territory.begin(), w_territory.end(), copyw[i + 1][j]) == 0 &&
+        std::count(bl_territory.begin(), bl_territory.end(),
+                   copybl[i + 1][j]) > 0)
+      flg = true;
   }
 
   if (j - 1 >= 0)
   {
-    if (copy2[i][j - 1] == 3)
-    {
-      if (check_along_white(i, j - 1))
-      {
-
-        flg = true;
-      }
-    }
-    if (copy2[i][j - 1] >= 5 && copy2[i][j - 1] < 100)
-    {
-      if (std::count(w_territory.begin(), w_territory.end(),
-                     copy2[i][j - 1]) == 0 &&
-          std::count(bl_territory.begin(), bl_territory.end(),
-                     copy1[i][j - 1]) > 0)
-      {
-        flg = true;
-      }
-    }
+    if (copyw[i][j - 1] == 3 && check_along_white(i, j - 1))
+      flg = true;
+    if (copyw[i][j - 1] > checked_bl_fig && copyw[i][j - 1] < 100 && std::count(w_territory.begin(), w_territory.end(), copyw[i][j - 1]) == 0 &&
+        std::count(bl_territory.begin(), bl_territory.end(),
+                   copybl[i][j - 1]) > 0)
+      flg = true;
   }
-
   if (j + 1 <= 9)
   {
-    if (copy2[i][j + 1] == 3)
-    {
-      if (check_along_white(i, j + 1))
-      {
-        flg = true;
-      }
-    }
-    if (copy2[i][j + 1] >= 5 && copy2[i][j + 1] < 100)
-    {
-      if (std::count(w_territory.begin(), w_territory.end(),
-                     copy2[i][j + 1]) == 0 &&
-          std::count(bl_territory.begin(), bl_territory.end(),
-                     copy1[i][j + 1]) > 0)
-      {
-
-        flg = true;
-      }
-    }
+    if (copyw[i][j + 1] == 3 && check_along_white(i, j + 1))
+      flg = true;
+    if (copyw[i][j + 1] > checked_bl_fig && copyw[i][j + 1] < 100 && std::count(w_territory.begin(), w_territory.end(), copyw[i][j + 1]) == 0 &&
+        std::count(bl_territory.begin(), bl_territory.end(),
+                   copybl[i][j + 1]) > 0)
+      flg = true;
   }
-  if (flg == true)
-  {
+  if (flg)
     black_count = black_count + 2;
-  }
   return flg;
 }
 
 Cell &Rules::at(int i, int c) // строка и столбец
 {
-  // first cell has index 1
-  if (i < 1 || 9 < i)
-  {
-  }
-  // error("Board::at:out of range");
-
-  if (c < 1 || 9 < c)
-  {
-  }
-  // error("Board::at:out of range");
-
   return cells[(i - 1) * 2 * N + (c - 1) * 2];
 }
