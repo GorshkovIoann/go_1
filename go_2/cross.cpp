@@ -1,5 +1,5 @@
 #include "cross.h"
-
+#include <iostream>
 Cross::Cross(Graph_lib::Point xy, Graph_lib::Callback cb, int i, int j)
     : Widget({xy.x - size/4, xy.y - size/4}, size/2, size/2, "", cb),
     x{i},
