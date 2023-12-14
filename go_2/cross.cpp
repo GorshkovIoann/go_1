@@ -77,7 +77,6 @@ void Crosses::hide(std::vector<std::vector<bool>> h)
         else crosses[i*n+j].show(); 
     }
 }
-#include <iostream>
 
 int Cross::get_state() const
 {
